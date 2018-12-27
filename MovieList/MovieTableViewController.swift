@@ -38,10 +38,12 @@ class MovieTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell") else { fatalError("Could not dequeue a cell") }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell") as? MovieTableViewCell else { fatalError("Could not dequeue a cell") }
         
         let movie = movies[indexPath.row]
-        cell.textLabel?.text = movie.title
+        cell.titleLabel.text = movie.title
+        let actors = movie.actors?.joined(separator: ", ")
+        cell.actorsLabel.text = actors
         return cell
     }
     
@@ -53,6 +55,7 @@ class MovieTableViewController: UITableViewController {
         if editingStyle == .delete {
             movies.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
+            Movie.saveMovies(movies)
         }
     }
     
@@ -70,6 +73,7 @@ class MovieTableViewController: UITableViewController {
                 tableView.insertRows(at: [newIndexPath], with: .automatic)
             }
         }
+        Movie.saveMovies(movies)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

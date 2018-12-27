@@ -8,15 +8,26 @@
 
 import Foundation
 
-struct Movie {
+struct Movie: Codable {
     var title: String
     var description: String?
     var actors: [String]?
     var year: Int?
     var length: Int?
     
+    static let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    static let archiveURL = documentDirectory.appendingPathComponent("movies").appendingPathExtension("plist")
+    
     static func loadMovies() -> [Movie]? {
-        return nil
+        guard let codedMovies = try? Data(contentsOf: archiveURL) else { return nil }
+        let propertyListDecoder = PropertyListDecoder()
+        return try? propertyListDecoder.decode(Array<Movie>.self, from: codedMovies)
+    }
+    
+    static func saveMovies(_ movies: [Movie]) {
+        let propertyListEncoder = PropertyListEncoder()
+        let codedMovies = try? propertyListEncoder.encode(movies)
+        try? codedMovies?.write(to: archiveURL, options: .noFileProtection)
     }
     
     static func loadSampleMovies() -> [Movie] {
